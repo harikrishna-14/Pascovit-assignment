@@ -18,7 +18,8 @@ app.use(cookieParser());
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://pascovit-assignment.vercel.app"
+    "https://pascovit-assignment.vercel.app",
+    "https://pascovit-assignment.onrender.com"  // if needed
   ],
   credentials: true
 }));
