@@ -1,14 +1,12 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
-// Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 };
 
-// Send Token in Cookie
 const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user._id);
 
@@ -30,7 +28,6 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
-// @route POST /api/auth/register
 exports.register = async (req, res) => {
   try {
     const { name, email, password, passwordConfirm } = req.body;
@@ -60,7 +57,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// @route POST /api/auth/login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -81,7 +77,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// @route POST /api/auth/logout
 exports.logout = (req, res) => {
   res.cookie('jwt', '', {
     httpOnly: true,
@@ -90,7 +85,6 @@ exports.logout = (req, res) => {
   res.status(200).json({ success: true, message: "Logged out" });
 };
 
-// @route GET /api/auth/me
 exports.getMe = async (req, res) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({ success: true, user });
