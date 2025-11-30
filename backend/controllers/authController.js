@@ -1,19 +1,20 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: "30d",
   });
 };
 
 const sendTokenResponse = (user, statusCode, res) => {
   const token = generateToken(user._id);
 
-  res.cookie('jwt', token, {
+  // ⭐ REQUIRED FOR VERCEL <-> RENDER COOKIE SHARING
+  res.cookie("jwt", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,        // Render uses HTTPS
+    sameSite: "none",    // REQUIRED for cross-domain cookies
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 
@@ -23,10 +24,12 @@ const sendTokenResponse = (user, statusCode, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    },
   });
 };
+
+// ---------------- AUTH CONTROLLERS ----------------
 
 exports.register = async (req, res) => {
   try {
@@ -48,7 +51,7 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password
+      password,
     });
 
     sendTokenResponse(user, 201, res);
@@ -65,7 +68,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Provide email & password" });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user || !(await user.matchPassword(password))) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -78,9 +81,11 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', '', {
+  res.cookie("jwt", "", {
     httpOnly: true,
-    expires: new Date(0)
+    secure: true,
+    sameSite: "none",
+    expires: new Date(0),
   });
   res.status(200).json({ success: true, message: "Logged out" });
 };
