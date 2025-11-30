@@ -14,30 +14,37 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// ⭐ Correct CORS for Render + Vercel
+// ⭐ FIXED CORS CONFIG (WORKS FOR COOKIES + RENDER + VERCEL)
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://pascovit-assignment.vercel.app"
+  "https://pascovit-assignment.vercel.app",
+  "https://pascovit-assignment.onrender.com"
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+    origin: (origin, callback) => {
+      // allow all server-to-server or tools
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
       }
+
+      // reject silently (do NOT crash)
+      return callback(null, false);
     },
     credentials: true,
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    exposedHeaders: "Set-Cookie"
   })
 );
 
-// ⭐ Fix preflight (CORS OPTIONS)
-app.options("*", cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+// ⭐ Required for preflight success
+app.options("*", (req, res) => {
+  res.sendStatus(200);
+});
 
 // ROUTES
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -58,8 +65,6 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = app;
