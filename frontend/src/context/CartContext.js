@@ -1,8 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { AuthContext } from "./AuthContext";
-
-axios.defaults.withCredentials = true; 
+import { cartAPI } from "./../services/api";  // <-- use your API wrapper
 
 export const CartContext = createContext();
 
@@ -10,6 +8,7 @@ export const CartProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [cart, setCart] = useState({ items: [] });
 
+  // Guest session
   const [sessionId] = useState(() => {
     let id = localStorage.getItem("sessionId");
     if (!id) {
@@ -25,20 +24,20 @@ export const CartProvider = ({ children }) => {
 
   const getSession = () => (user ? {} : { sessionId });
 
+  // GET cart
   const fetchCart = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/cart", {
-        params: getSession(),
-      });
+      const res = await cartAPI.getCart(getSession());
       setCart(res.data.cart || { items: [] });
     } catch (err) {
       console.error("Failed to fetch cart:", err);
     }
   };
 
+  // ADD to cart
   const addToCart = async (productId, size, quantity = 1) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/cart/add", {
+      const res = await cartAPI.addToCart({
         productId,
         size,
         quantity,
@@ -52,13 +51,14 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // UPDATE cart item
   const updateCart = async (productId, size, quantity) => {
     try {
-      const res = await axios.put("http://localhost:5000/api/cart/update", {
+      const res = await cartAPI.updateCart({
         productId,
         size,
         quantity,
-        ...getSession(), 
+        ...getSession(),
       });
 
       setCart(res.data.cart);
@@ -68,14 +68,13 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // REMOVE from cart
   const removeFromCart = async (productId, size) => {
     try {
-      const res = await axios.delete("http://localhost:5000/api/cart/remove", {
-        data: {
-          productId,
-          size,
-          ...getSession(),
-        },
+      const res = await cartAPI.removeFromCart({
+        productId,
+        size,
+        ...getSession(),
       });
 
       setCart(res.data.cart);
@@ -85,14 +84,10 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  // CLEAR cart
   const clearCart = async () => {
     try {
-      await axios.delete("http://localhost:5000/api/cart/clear", {
-        data: {
-          ...getSession(),
-        },
-      });
-
+      await cartAPI.clearCart(getSession());
       setCart({ items: [] });
     } catch (err) {
       console.error("Failed to clear cart:", err);
