@@ -152,8 +152,8 @@ The frontend will open at `http://localhost:3000`
 ### Access the Application
 
 Open your browser and navigate to:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
+- **Frontend**: [http://localhost:3000](https://pascovit-assignment.vercel.app/)
+- **Backend API**: {http://localhost:5000} (https://pascovit-assignment.onrender.com)
 
 ## 📡 API Documentation
 
@@ -209,11 +209,11 @@ This project is open source and available under the MIT License.
 
 ## 👤 Author
 
-- **GitHub**: [@harikrisha-14](https://github.com/harikrisha-14)
+- **GitHub**: [@harikrishna-14](https://github.com/harikrisha-14)
 
 ## 📧 Support
 
-For questions or issues, please open an [Issue](https://github.com/harikrisha-14/Pascovit-assignment/issues) on GitHub.
+For questions or issues, please open an [Issue](https://github.com/harikrishna-14/Pascovit-assignment/issues) on GitHub.
 
 ---
 
